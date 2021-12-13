@@ -34,9 +34,10 @@
 ;;
 ;; (require 'preview-dvisvgm)
 ;;
+;; Note, that this package adds an entry for dvisvgm to preview-image-creators.
+;; (Currently, this appears to be a customization which it isn't.  This is a known dept.)
 ;;
 ;; Usage:
-;; Note, that this package adds `dvisvgm' to
 ;; If you like preview-latex to generate svg images customize option
 ;; `preview-image-type' to "dvisvgm".
 ;;
