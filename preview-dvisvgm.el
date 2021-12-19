@@ -50,9 +50,28 @@
   :type 'integer
   :group 'preview-gs)
 
-(customize-push-and-save 'preview-image-creators '((dvisvgm (open preview-gs-open preview-dvisvgm-process-setup)
-							    (place preview-gs-place)
-							    (close preview-dvisvgm-close))))
+(defun preview-dvisvgm-variable-standard-value (symbol)
+  "Return standard value of variable SYMBOL."
+  (let ((container (get symbol 'standard-value)))
+    (cl-assert (consp container) "%s does not have a standard value")
+    (eval (car container))))
+
+(defun preview-dvisvgm-set-variable-standard-value (symbol value)
+  "Set standard value of variable SYMBOL to VALUE."
+  (let ((standard (preview-dvisvgm-variable-standard-value symbol)))
+    (when (equal (symbol-value symbol) standard)
+      (set symbol value))
+    (put symbol 'standard-value (list
+                 (list
+                  'quote
+                  value)))))
+
+(gv-define-simple-setter preview-dvisvgm-variable-standard-value preview-dvisvgm-set-variable-standard-value)
+
+(pushnew '(dvisvgm (open preview-gs-open preview-dvisvgm-process-setup)
+		   (place preview-gs-place)
+		   (close preview-dvisvgm-close))
+	 (preview-dvisvgm-variable-standard-value 'preview-image-creators))
 
 (put 'preview-image-type 'custom-type
      (append '(choice)
