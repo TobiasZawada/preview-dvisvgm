@@ -4,6 +4,9 @@
 
 ;; Author: Tobias Zawada <i@tn-home.de>
 ;; Keywords: tex
+;; Version: 1.0.0
+;; URL: https://github.com/TobiasZawada/preview-dvisvgm
+;; Package-Requires: ((emacs "27.1") (auctex "13.0.12"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -115,20 +118,20 @@ if you customize this."
   (if preview-parsed-pdfoutput
       (if (preview-supports-image-type preview-gs-image-type)
           (preview-pdf2dsc-process-setup)
-        (error "preview-image-type setting '%s unsupported by this Emacs"
+        (error "Setting \"%s\" for `preview-image-type' unsupported by this Emacs"
                preview-gs-image-type))
     (unless (preview-supports-image-type preview-dvisvgm-image-type)
-      (error "preview-dvipng-image-type setting '%s unsupported by this Emacs"
+      (error "Setting \"%s\" for `preview-dvisvgm-image-type'  unsupported by this Emacs"
              preview-dvisvgm-image-type))
-    (let ((process (preview-start-dvisvgm)))
+    (let ((process (preview-dvisvgm-start)))
       (setq TeX-sentinel-function #'preview-dvisvgm-sentinel)
       (list process (current-buffer) TeX-active-tempdir t
           preview-dvisvgm-image-type))))
 
-(defun preview-start-dvisvgm ()
+(defun preview-dvisvgm-start ()
   "Start a DviSvgm process.."
   (when (> preview-dvisvgm-debug 0)
-    (message "Running `preview-start-dvisvgm'."))
+    (message "Running `preview-dvisvgm-start'."))
   (let* (;; (file preview-gs-file)
          tempdir
          (scale (* (/ (preview-hook-enquiry preview-scale)
@@ -202,7 +205,7 @@ Deletes the dvi file when finished."
           (push ov preview-gs-queue))))
     (if (setq preview-gs-queue (nreverse preview-gs-queue))
         (progn
-          (preview-start-dvisvgm)
+          (preview-dvisvgm-start)
           (setq TeX-sentinel-function (lambda (process command)
                                         (preview-dvisvgm-sentinel
                                          process
