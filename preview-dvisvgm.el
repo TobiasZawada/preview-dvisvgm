@@ -47,6 +47,8 @@
 ;;; Code:
 
 (require 'preview)
+(require 'cl-lib)
+(require 'face-remap)
 
 (defcustom preview-dvisvgm-debug 0
   "Verbosity level for debugging of preview-dvisvgm."
@@ -71,10 +73,10 @@
 
 (gv-define-simple-setter preview-dvisvgm-variable-standard-value preview-dvisvgm-set-variable-standard-value)
 
-(pushnew '(dvisvgm (open preview-gs-open preview-dvisvgm-process-setup)
-		   (place preview-gs-place)
-		   (close preview-dvisvgm-close))
-	 (preview-dvisvgm-variable-standard-value 'preview-image-creators))
+(cl-pushnew '(dvisvgm (open preview-gs-open preview-dvisvgm-process-setup)
+		      (place preview-gs-place)
+		      (close preview-dvisvgm-close))
+	    (preview-dvisvgm-variable-standard-value 'preview-image-creators))
 
 (put 'preview-image-type 'custom-type
      (append '(choice)
