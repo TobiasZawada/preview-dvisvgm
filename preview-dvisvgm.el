@@ -167,7 +167,7 @@ if you customize this."
          (command (with-current-buffer TeX-command-buffer
                     (prog1
                         (concat (TeX-command-expand
-				 (if preview-parsed-pdfoutput
+				 (if (or TeX-PDF-mode preview-parsed-pdfoutput)
 				     preview-dvisvgm-pdf-command
 				     preview-dvisvgm-command))
                                 " " scale-str)
@@ -282,27 +282,25 @@ The usual PROCESS and COMMAND arguments for
   "Clean up after PROCESS and set up queue accumulated in CLOSEDATA."
   (when (> preview-dvisvgm-debug 0)
     (message "Running `preview-dvisvgm-close'."))
-  (if preview-parsed-pdfoutput
-      (preview-gs-close process closedata)
-    (setq preview-gs-queue (nconc preview-gs-queue closedata))
-    (if process
-        (if preview-gs-queue
-            (if TeX-process-asynchronous
-                (if (and (eq (process-status process) 'exit)
-                         (null TeX-sentinel-function))
-                    ;; Process has already finished and run sentinel
-                    (preview-dvisvgm-place-all)
-                  (setq TeX-sentinel-function (lambda (process command)
-                                                (preview-dvisvgm-sentinel
-                                                 process
-                                                 command
-                                                 t))))
-              (TeX-synchronous-sentinel "Preview-DviSVGM" (cdr preview-gs-file)
-                                        process))
-          ;; pathological case: no previews although we sure thought so.
-          (delete-process process)
-          (unless (eq (process-status process) 'signal)
-            (preview-dvipng-abort))))))
+  (setq preview-gs-queue (nconc preview-gs-queue closedata))
+  (if process
+      (if preview-gs-queue
+          (if TeX-process-asynchronous
+              (if (and (eq (process-status process) 'exit)
+                       (null TeX-sentinel-function))
+                  ;; Process has already finished and run sentinel
+                  (preview-dvisvgm-place-all)
+                (setq TeX-sentinel-function (lambda (process command)
+                                              (preview-dvisvgm-sentinel
+                                               process
+                                               command
+                                               t))))
+            (TeX-synchronous-sentinel "Preview-DviSVGM" (cdr preview-gs-file)
+                                      process))
+        ;; pathological case: no previews although we sure thought so.
+        (delete-process process)
+        (unless (eq (process-status process) 'signal)
+          (preview-dvipng-abort)))))
 
 (provide 'preview-dvisvgm)
 ;;; preview-dvisvgm.el ends here
